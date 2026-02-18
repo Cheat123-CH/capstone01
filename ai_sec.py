@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime
+from database_chatbot.activities import activities
 
 # Page config
 st.set_page_config(
@@ -9,134 +10,23 @@ st.set_page_config(
 )
 
 # ---------- CUSTOM CSS ----------
-st.markdown("""
-<style>
-.main {
-    background-color: #f4f6f9;
-}
-.big-alert {
-    background-color: #ffe5e5;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    border: 1px solid #ff4d4d;
-}
-.section-box {
-    background-color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
-}
-.grey-box {
-    max-hight: 300px;
-    padding-top: 5;
-    background-color: #e9ecef;
-    padding-left: 20px; 
-    border-radius: 12px;
-}
-.green-box {
-    background-color: #e6f7ee;
-    padding: 15px;
-    border-radius: 10px;
-}
-.red-box {
-    background-color: #fdeaea;
-    padding: 15px;
-    border-radius: 10px;
-}
-.section-box {
-    background-color: #f9fafb;
-    height: 150px;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-}
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-.activity-item {
-    background-color:  #f3f4f6;
-    padding: 12px 16px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
+load_css("styles/style.css")
 
-.activity-left {
-    font-size: 14px; 
-}
-
-.activity-time {
-    color: gray;
-    font-size: 12px;
-}
-
-.badge {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-}
-<style>
-.card {
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    background-color: #fff;
-}
-
-.quarantine-header {
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #d32f2f;
-}
-
-.quarantine-box {
-    margin-top: 10px;
-    background-color: #fdecea;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.quarantine-caption {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #555;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.security-header {
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #f9a825;
-}
-
-.security-box {
-    margin-top: 10px;
-    background-color: #fff8e1;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.red { background-color: #ffe5e5; color: #d90429; }
-.orange { background-color: #fff3e0; color: #f77f00; }
-.blue { background-color: #e3f2fd; color: #1d4ed8; }
-</style>
-""", unsafe_allow_html=True)
+# =============================
+# SESSION STATE
+# =============================
+if "selected_id" not in st.session_state:
+    st.session_state.selected_id = activities[0]["id"]
+    
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+    
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
 
 # ---------- HEADER ----------
 st.title("🛡️ AI-Sec Assistant")
@@ -153,76 +43,73 @@ st.markdown("""
 # ---------- TWO COLUMN LAYOUT ----------
 col1, col2 = st.columns([1, 2])
 
+#=============================
+# FUNCTIONS
+# =============================
+def send_message():
+    if st.session_state.user_input:
+        st.session_state.chat_history.append({"role": "user", "content": st.session_state.user_input})
+        # Simulate AI response
+        ai_response = generate_ai_response(st.session_state.user_input, selected_item)
+        st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
+        st.session_state.user_input = ""
+
+def generate_ai_response(query, file_info):
+    responses = {
+        "what is this": f"This is {file_info['name']}, a file that was scanned by our security system. It has been classified as {file_info['status']} risk based on our analysis.",
+        "where did it come from": f"The file was found at: {file_info['path'] if file_info['path'] else 'External USB Drive'}",
+        "what should i do": get_recommendation(file_info['status'])
+    }
+    
+    for key, response in responses.items():
+        if key in query.lower():
+            return response
+    
+    return f"I've analyzed {file_info['name']}. Based on my analysis, this file is {file_info['status'].lower()} risk. You can ask me specific questions about its origin, what it is, or what actions to take."
+
+def get_recommendation(status):
+    if status == "Quarantined":
+        return "The file has been automatically quarantined. You don't need to take any action - it's safely isolated."
+    elif status == "Suspicious":
+        return "I recommend keeping this file quarantined and not opening it. You can request a deeper scan if needed."
+    else:
+        return "The file appears safe, but always ensure you trust the source before opening."
+
 # ---------- LEFT SIDE ----------
 with col1:
-    st.markdown('<div class="section-box">', unsafe_allow_html=True)
+    # this error
     st.subheader("🕒 Recent Activity")
 
     # Item 1
-    st.markdown("""
-    <div class="activity-item">
-        <div class="activity-left">
-            <div class="activity-time">2:34 PM Today</div>
-            C:/Users/Downloads/invoice_2024.exe
-        </div>
-        <div class="badge red">Quarantined</div>
-    </div>
-    """, unsafe_allow_html=True)
+    for item in activities:
+        is_selected = st.session_state.selected_id == item["id"]
 
-    # Item 2
-    st.markdown("""
-    <div class="activity-item">
-        <div class="activity-left">
-            <div class="activity-time">1:15 PM Today</div>
-            C:/Users/Documents/report.docx
-        </div>
-        <div class="badge orange">Suspicious</div>
-    </div>
-    """, unsafe_allow_html=True)
+        # Badge color based on status
+        if item["status"].lower() == "low":
+            badge_class = "blue"
+        elif item["status"].lower() == "medium":
+            badge_class = "orange"
+        else:
+            badge_class = "red"
 
-    # Item 3
-    st.markdown("""
-    <div class="activity-item">
-        <div class="activity-left">
-            <div class="activity-time">11:42 AM Today</div>
-            External USB Drive (E:)
+        st.markdown(f"""
+        <div class="activity-item">
+            <div class="activity-left">
+                <div class="activity-time">{item['time']}</div>
+                <div class="activity-name">{item['name']}</div>
+                <div class="activity-path">{item.get('path','')}</div>
+            </div>
+            <div class="badge {badge_class}">
+                {item['status']}
+            </div>
         </div>
-        <div class="badge blue">Low</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="activity-item">
-        <div class="activity-left">
-            <div class="activity-time">11:42 AM Today</div>
-            External USB Drive (E:)
-        </div>
-        <div class="badge blue">Low</div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("""
-    <div class="activity-item">
-        <div class="activity-left">
-            <div class="activity-time">11:42 AM Today</div>
-            External USB Drive (E:)
-        </div>
-        <div class="badge blue">Low</div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.markdown("""
-    <div class="activity-item">
-        <div class="activity-left">
-            <div class="activity-time">11:42 AM Today</div>
-            External USB Drive (E:)
-        </div>
-        <div class="badge blue">Low</div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.write("")
+        """, unsafe_allow_html=True)
 
 # ---------- RIGHT SIDE ----------
 with col2:
-    st.markdown('<div class="section-box">', unsafe_allow_html=True)
+    
+    selected_item = next(item for item in activities if item["id"] == st.session_state.selected_id)
+    # this error
     st.subheader("🤖 AI Security Assistant")
 
     # -------- GREY BOX --------
@@ -238,6 +125,7 @@ with col2:
     test
     </div>
     """, unsafe_allow_html=True)
+    st.write("")
 
  # -------- GREEN BOX --------
     st.markdown(f"""
@@ -277,15 +165,40 @@ with colb1:
     """, unsafe_allow_html=True)
 
 with colb2 :
+    for message in st.session_state.chat_history[-6:]:
+        if message["role"] == "user":
+            st.markdown(f"""
+            <div style="text-align:right; margin:5px 0;">
+                <span style="background-color:#4a90e2; color:white; padding:8px 15px; border-radius:20px; display:inline-block; max-width:80%;">
+                    {message['content']}
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div style="text-align:left; margin:5px 0;">
+                <span style="background-color:#f1f5f9; color:#1e293b; padding:8px 15px; border-radius:20px; display:inline-block; max-width:80%;">
+                    🤖 {message['content']}
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
     # ---------- SECURITY TIP ----------
-    st.markdown("""
-    <div class="card">
-        <div class="security-header">💡 Security Tip</div>
-        <div class="security-box">
-            Never click on links in unexpected emails, even if they look official.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    col_input, col_send = st.columns([3,1])
+    with col_input:
+        st.text_input("Ask AI Assistant...", key="user_input", placeholder="Ask AI Assistant about this threat...")
+    with col_send:
+        st.button("Send", on_click=send_message) 
+
+    # st.markdown("""
+    # <div class="card">
+    #     <div class="security-header">💡 Security Tip</div>
+    #     <div class="security-box">
+    #         Never click on links in unexpected emails, even if they look official.
+    #     </div>
+    # </div>
+    # """, unsafe_allow_html=True)
 
 st.write("")
 st.write("")

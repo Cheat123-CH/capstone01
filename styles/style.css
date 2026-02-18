@@ -1,0 +1,163 @@
+.main {
+    background-color: #f4f6f9;
+}
+.big-alert {
+    background-color: #ffe5e5;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #ff4d4d;
+}
+.section-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+}
+.grey-box {
+    max-hight: 300px;
+    padding-top: 5;
+    background-color: #e9ecef;
+    padding-left: 20px; 
+    border-radius: 12px;
+}
+.green-box {
+    background-color: #e6f7ee;
+    padding: 15px;
+    border-radius: 10px;
+}
+.red-box {
+    background-color: #fdeaea;
+    padding: 15px;
+    border-radius: 10px;
+}
+.section-box {
+    background-color: #f9fafb;
+    height: 150px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.activity-item {
+    background-color:  #f3f4f6;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.activity-left {
+    font-size: 14px; 
+}
+
+.activity-time {
+    color: gray;
+    font-size: 12px;
+}
+
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+<style>
+.card {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+
+.quarantine-header {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #d32f2f;
+}
+
+.quarantine-box {
+    margin-top: 10px;
+    background-color: #fdecea;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quarantine-caption {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.security-header {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #f9a825;
+}
+
+.security-box {
+    margin-top: 10px;
+    background-color: #fff8e1;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.red { background-color: #ffe5e5; color: #d90429; }
+.orange { background-color: #fff3e0; color: #f77f00; }
+.blue { background-color: #e3f2fd; color: #1d4ed8; }
+
+/* chatbot lymean */
+
+.chat-container {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.05);
+    height: 500px;
+    overflow-y: auto;
+}
+
+.chat-row {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.chat-ai {
+    justify-content: flex-start;
+}
+
+.chat-user {
+    justify-content: flex-end;
+}
+
+.chat-bubble-ai {
+    background-color: #e9ecef;
+    padding: 12px 18px;
+    border-radius: 18px;
+    max-width: 70%;
+}
+
+.chat-bubble-user {
+    background: linear-gradient(135deg, #4e8df5, #3b6edc);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 18px;
+    max-width: 70%;
+}
